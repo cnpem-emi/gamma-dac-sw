@@ -54,3 +54,14 @@ class DAC:
             print("i2cset -y -r 2 {} {} 0x00 0x00 0x82 {} i".format(self.I2C_addr, f'{self.W_addr:#04x}', command))
             os.system("i2cset -y -r 2 {} {} 0x00 0x00 0x82 {} i".format(self.I2C_addr, f'{self.W_addr:#04x}', command))
 
+        else:
+            print("i2cset -y -r 2 {} {} 0x00 0x00 0x82 {} i".format(self.I2C_addr, f'{self.W_addr:#04x}', command))
+            os.system("i2cset -y -r 2 {} {} 0x00 0x00 0x82 {} i".format(self.I2C_addr, f'{self.W_addr:#04x}', command))
+
+    def clear(self):
+        print("i2cset -y -r 2 {} {} 0x00 0x00 0x50 i".format(self.I2C_addr, f'{self.W_addr:#04x}'))
+        os.system("i2cset -y -r 2 {} {} 0x00 0x00 0x50 i".format(self.I2C_addr, f'{self.W_addr:#04x}'))
+
+    def reset(self):
+        print("i2cset -y -r 2 {} {} 0x00 0x00 0x51 i".format(self.I2C_addr, f'{self.W_addr:#04x}'))
+        os.system("i2cset -y -r 2 {} {} 0x00 0x00 0x51 i".format(self.I2C_addr, f'{self.W_addr:#04x}'))
