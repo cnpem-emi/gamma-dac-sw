@@ -1,10 +1,10 @@
 from subprocess import check_output
 import board, busio
 
-class DAC:
+class DAC(Thread):
 
     def __init__(self, gammaAddr = 15):
-
+        Thread.__init__(self)
         self.W_addr = int(f'0b001{gammaAddr:04b}0', 2)
         self.R_addr = int(f'0b001{gammaAddr:04b}1',2)
 
@@ -40,7 +40,7 @@ class DAC:
         self.voltageREF = self.modeRef[f'{mode:02b}']
         self.send_bytes([f'01110{power}{mode:02b}', '00000000', '00000000'])
 
-    def write_all(self, *value):
+    def writeValue(self, value, all_ch = True, ch =0):
         data = ['10000010']
         for i in range(len(value[0])):
             data.append(f'{value[0][i]:08b}')
