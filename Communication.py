@@ -1,6 +1,7 @@
 from threading import Thread
 from GammaDAC import DAC
-import socket
+from time import sleep
+import socket, datetime, sys, struct
 
 #BSMPS Variables
 #---------------------------------
@@ -23,18 +24,27 @@ READ_CODE_ALL       = 0x32
 READ_POWER          = 0x33
 #---------------------------------
 
+# Datetime string
+def time_string():
+    return(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")[:-4] + " - ")
+
 def verify_CheckSum(list_values):
     counter = 0
-    for value in list_values:
-        counter += value
-    return ((counter - 256) == 0)
+
+    for values in list_values:
+        counter += values
+    counter = (counter & 0xFF)
+    return (counter == 0)
 
 def include_CheckSum(list_values):
     counter = 0
+
     for values in list_values:
         counter += values
-    cs = 256 - counter
-    return(list_values + [cs])
+    counter = (counter & 0xFF)
+    counter = (256 - counter) & 0xFF
+    return list_values + [counter]
+
 
 def sendVariables(variableID, value, size):
     send_message = [0x00, variableID] + [c for c in struct.pack("!h", size)]
@@ -44,10 +54,12 @@ def sendVariables(variableID, value, size):
         send_message = send_message + [c for c in struct.pack("!h", value)]
     elif size == 4:
         send_message = send_message + [c for c in struct.pack("!I", value)]
-    return "".join(map(chr, includeChecksum(send_message)))
+    print(include_CheckSum(send_message))
+    return "".join(map(chr, include_CheckSum(send_message)))
 
-class Communication:
+class Communication(Thread):
     def __init__(self, port):
+        Thread.__init__(self)
         self.port = port
         self.dac = DAC()
 
@@ -59,11 +71,11 @@ class Communication:
                 self.tcp.bind(("", self.port))
                 self.tcp.listen(1)
 
-                sys.stdout.write("----- CountongPRU DAC control Socket -----")
+                sys.stdout.write("----- CountingPRU DAC control Socket -----\n")
                 sys.stdout.write(time_string() + "TCP/IP Server on port " + str(self.port) + " started.\n")
                 sys.stdout.flush()
 
-                while (True):
+                while(True):
                     sys.stdout.write(time_string() + "Waiting for connection.\n")
                     sys.stdout.flush()
                     con, client_info = self.tcp.accept()
@@ -77,71 +89,105 @@ class Communication:
                         # Get message
                         message = [ord(i) for i in con.recv(100).decode('latin-1')]
                         if (message):
-                            if (verifyChecksum(message)):
+                            if (verify_CheckSum(message)):
                                 # Reads Variable
                                 if message[1] == 0x10:
                                     if message[4] == READ_DAC_CH:
                                         con.send(
-                                            sendVariable(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
                                                 'latin-1'))
 
                                     elif message[4] == READ_CODE_CH:
                                         con.send(
-                                            sendVariable(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
                                                 'latin-1'))
                                     elif message[4] == READ_POWER:
                                         con.send(
-                                            sendVariable(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
                                                 'latin-1'))
                                 # Reads Group
                                 elif message[1] == 0x12:
                                     if   message[4] == READ_DAC_ALL:
                                         con.send(
-                                            sendVariable(variableID=0x13, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x13, value=on_battery_status, size=0).encode(
                                                 'latin-1'))
                                     elif message[4] == READ_CODE_ALL:
                                         con.send(
-                                            sendVariable(variableID=0x13, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x13, value=on_battery_status, size=0).encode(
                                                 'latin-1'))
 
                                 # Writes Variable
                                 elif message[1] == 0x20:
                                     if   message[4] == SET_POWER_CONFIG:
-                                        dac.power(mode = message[5], DACs = message[6])
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}Power DAC configuration\nMode: {message[5]}\nDACs: {message[6]}\n")
+                                        sys.stdout.flush()
+                                        self.dac.power(mode = message[5], DACs = message[6])
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == SET_DAC_CONFIG:
-                                        dac.config(All_DACs = message[5], LD_EN = message[6], DACs = message[7])
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}Latch DAC configuration\nAll_DACS: {message[5]}\nLD_EN: {message[6]}\nDACs: {message[7]}\n")
+                                        sys.stdout.flush()
+                                        self.dac.config(All_DACs = message[5], LD_EN = message[6], DACs = message[7])
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == SET_REFERENCE:
-                                        dac.ref(power = message[5], mode = message[6])
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        voltages = {'00': None, '01': 2.5, '10': 2.048, '11': 4.1}
+                                        sys.stdout.write(
+                                            f"{time_string()}Voltage Referance set to {voltages[f'{message[5]:02b}']}\nPower mode: {message[6]}\n")
+                                        sys.stdout.flush()
+                                        self.dac.ref(power = message[6], mode = message[5])
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == WRITE_VALUE_CH:
-                                        dac.writeValue(value = message[5], all_ch = False, ch = message[6])
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}{message[5]} wrote at channel {message[6]}\n")
+                                        sys.stdout.flush()
+                                        self.dac.writeValue(value = message[5], all_ch = False, ch = message[6])
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == WRITE_VOLTS_CH:
-                                        dac.writeVolts(voltage = message[5], all_ch = False, ch = message[6])
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        value = ((message[6] << 8) + message[7])/10000
+                                        sys.stdout.write(
+                                            f"{time_string()}{value}V set to channel {message[5]}\n")
+                                        sys.stdout.flush()
+                                        self.dac.writeVolts(voltage = value, all_ch = False, ch = message[5])
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == CLEAR_DAC:
-                                        dac.clear()
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}Cleaning DAC\n")
+                                        sys.stdout.flush()
+                                        self.dac.clear()
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == RESET_DAC:
-                                        dac.reset()
-                                        con.send(sendVariable(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}Resetting DAC\n")
+                                        sys.stdout.flush()
+                                        self.dac.reset()
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                                 # Writes Group
                                 elif message[1] == 0x22:
                                     if message[4] == WRITE_VALUE_ALL:
-                                        dac.writeValue(value = message[5])
-                                        con.send(sendVariable(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
+                                        sys.stdout.write(
+                                            f"{time_string()}{message[5]} wrote at all channels\n")
+                                        sys.stdout.flush()
+
+                                        self.dac.writeValue(value = message[5])
+                                        #con.send(sendVariables(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
+
                                     elif message[4] == WRITE_VOLTS_ALL:
-                                        dac.writeValue(value = message[5])
-                                        con.send(sendVariable(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
+                                        print(message)
+                                        value = (message[5]*256 + message[6]) / 10000
+                                        sys.stdout.write(
+                                            f"{time_string()}{value}V set to all channels\n")
+                                        sys.stdout.flush()
+
+                                        self.dac.writeVolts(voltage = value)
+                                        #con.send(sendVariables(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
 
                             else:
                                 sys.stdout.write(time_string() + "Unknown message: {}\n".format(message))

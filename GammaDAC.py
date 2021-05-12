@@ -1,10 +1,9 @@
-from subprocess import check_output
-import board, busio
+from subprocess import check_output, run
+import board, busio, os
 
-class DAC(Thread):
+class DAC():
 
     def __init__(self, gammaAddr = 15):
-        Thread.__init__(self)
         self.W_addr = int(f'0b001{gammaAddr:04b}0', 2)
         self.R_addr = int(f'0b001{gammaAddr:04b}1',2)
 
@@ -34,20 +33,21 @@ class DAC(Thread):
         self.send_bytes([f'010000{mode:02b}', f'0000{DACs:04b}', '00000000'])
 
     def config(self, All_DACs, LD_EN, DACs):
-        self.send_bytes([f'0110{All_DACs}00{LD_EN}', f'0000{DACs:04b}', '00000000'])
+        self.send_bytes([f'0110{All_DACs:01b}00{LD_EN:01b}', f'0000{DACs:04b}', '00000000'])
 
     def ref(self, power, mode):
         self.voltageREF = self.modeRef[f'{mode:02b}']
-        self.send_bytes([f'01110{power}{mode:02b}', '00000000', '00000000'])
+        self.send_bytes([f'01110{power:01b}{mode:02b}', '00000000', '00000000'])
 
     def writeValue(self, value, all_ch = True, ch =0):
         data = ['10000010']
         for i in range(len(value[0])):
             data.append(f'{value[0][i]:08b}')
-
         self.send_bytes(data)
 
     def writeVolts(self, voltage, all_ch = True, ch =0):
+        if self.voltageREF == 0:
+            self.voltageREF = float(os.getenv("GAMMA_DAC_REF"))
         D = int((2**12)*voltage / self.voltageREF)
 
         if voltage > self.voltageREF:
