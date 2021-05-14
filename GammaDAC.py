@@ -22,9 +22,11 @@ class DAC():
                 command.append(int(i, 2))
 
             self.i2c.writeto(self.I2C_addr, bytes(command), stop=False)
+
         else:
-            a = check_output(["i2cget", "-y", "2", f"{self.I2C_addr:#04x}", f"{data:#04x}"])
-            register_Value = int(a.decode(), 16) * 16
+            result = bytearray(2)
+            self.i2c.readfrom_into(self.I2C_addr, result)
+            register_Value = int(result.hex()[:-1], 16)
 
             return ([register_Value, (register_Value * self.voltageREF) / 4096])
 
@@ -70,5 +72,6 @@ class DAC():
 
     def read(self, ch):
         data = [f'0011{ch:04b}']
-        print(self.send_bytes(data=int(data[0], 2), readBack=True))
-        #return()
+        self.send_bytes(data=data)
+
+        return (self.send_bytes(readBack=True))
