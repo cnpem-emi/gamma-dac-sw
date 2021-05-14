@@ -54,7 +54,8 @@ def sendVariables(variableID, value, size):
         send_message = send_message + [c for c in struct.pack("!h", value)]
     elif size == 4:
         send_message = send_message + [c for c in struct.pack("!I", value)]
-    print(include_CheckSum(send_message))
+    elif size == 8:
+        send_message = send_message + [c for c in struct.pack("!H", value)]
     return "".join(map(chr, include_CheckSum(send_message)))
 
 class Communication(Thread):
@@ -92,20 +93,29 @@ class Communication(Thread):
                             if (verify_CheckSum(message)):
                                 # Reads Variable
                                 if message[1] == 0x10:
+                                    value = self.dac.read_dac(False, message[5])
                                     if message[4] == READ_DAC_CH:
+                                        sys.stdout.write(
+                                            f"{time_string()}DAC read\nChannel: {message[5]}\nValue: {value}\n")
+                                        sys.stdout.flush()
                                         con.send(
-                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=value[0]<<4, size=8).encode(
                                                 'latin-1'))
 
                                     elif message[4] == READ_CODE_CH:
+                                        value = self.dac.read_dac(False, message[5])
+                                        sys.stdout.write(
+                                            f"{time_string()}CODE read\nChannel: {message[5]}\nValue: {value}\n")
+                                        sys.stdout.flush()
                                         con.send(
-                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=value[0]<<4, size=8).encode(
                                                 'latin-1'))
                                     elif message[4] == READ_POWER:
                                         con.send(
-                                            sendVariables(variableID=0x11, value=on_battery_status, size=0).encode(
+                                            sendVariables(variableID=0x11, value=self.dac.read_power(), size=1).encode(
                                                 'latin-1'))
                                 # Reads Group
+                                #@TODO
                                 elif message[1] == 0x12:
                                     if   message[4] == READ_DAC_ALL:
                                         con.send(
@@ -166,7 +176,6 @@ class Communication(Thread):
                                         #con.send(sendVariables(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
 
                                     elif message[4] == WRITE_VOLTS_ALL:
-                                        print(message)
                                         value = (message[5]*256 + message[6]) / 10000
                                         sys.stdout.write(
                                             f"{time_string()}{value}V set to all channels\n")
@@ -202,9 +211,8 @@ class Communication(Thread):
                             break
 
             except Exception as e:
-                print(e)
                 self.tcp.close()
-                sys.stdout.write(time_string() + "Connection problem. TCP/IP server was closed.\n")
+                sys.stdout.write(time_string() + "Connection problem. TCP/IP server was closed.\n", e, "\n")
                 sys.stdout.flush()
                 sleep(5)
 

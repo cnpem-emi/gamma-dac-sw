@@ -1,5 +1,4 @@
-from subprocess import check_output, run
-import board, busio, os
+import board, busio
 
 class DAC():
 
@@ -50,8 +49,6 @@ class DAC():
         self.send_bytes(data)
 
     def writeVolts(self, voltage, all_ch = True, ch =0):
-        if self.voltageREF == 0:
-            self.voltageREF = float(os.getenv("GAMMA_DAC_REF"))
         D = int((2**12)*voltage / self.voltageREF)
 
         if voltage > self.voltageREF:
@@ -70,8 +67,38 @@ class DAC():
     def reset(self):
         self.send_bytes(['01010001'])
 
-    def read(self, ch):
-        data = [f'0011{ch:04b}']
+    def read_dac(self, readAll = True,  ch = 0):
+        if readAll:
+            value_return = []
+            data = [f'10000001']
+            self.send_bytes(data=data)
+            for i in range(4):
+                value_return.append(self.send_bytes(readBack=True))
+            return(value_return)
+
+        else:
+            data = [f'0011{ch:04b}']
+            self.send_bytes(data=data)
+            return (self.send_bytes(readBack=True))
+
+    def read_code(self, readAll = True, ch = 0):
+        if readAll:
+            value_return = []
+            data = [f'10000000']
+            self.send_bytes(data=data)
+            for i in range(4):
+                value_return.append(self.send_bytes(readBack=True)[0])
+            return (value_return)
+
+        else:
+            data = [f'0000{ch:04b}']
+            self.send_bytes(data=data)
+            return (self.send_bytes(readBack=True)[0])
+
+    def read_power(self):
+        data = [f'01000000']
         self.send_bytes(data=data)
 
-        return (self.send_bytes(readBack=True))
+        result = bytearray(2)
+        self.i2c.readfrom_into(self.I2C_addr, result)
+        return(int(result.hex(), 16))
