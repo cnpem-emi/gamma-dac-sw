@@ -155,20 +155,6 @@ class Communication(Thread):
                                         self.dac.writeVolts(voltage = value, all_ch = False, ch = message[5])
                                         #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
-                                    elif message[4] == CLEAR_DAC:
-                                        sys.stdout.write(
-                                            f"{time_string()}Cleaning DAC\n")
-                                        sys.stdout.flush()
-                                        self.dac.clear()
-                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
-
-                                    elif message[4] == RESET_DAC:
-                                        sys.stdout.write(
-                                            f"{time_string()}Resetting DAC\n")
-                                        sys.stdout.flush()
-                                        self.dac.reset()
-                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
-
                                 # Writes Group
                                 elif message[1] == 0x22:
                                     if message[4] == WRITE_VALUE_ALL:
@@ -188,6 +174,20 @@ class Communication(Thread):
 
                                         self.dac.writeVolts(voltage = value)
                                         #con.send(sendVariables(variableID=0x22, value=0xe0, size=1).encode('latin-1'))
+
+                                    elif message[4] == CLEAR_DAC:
+                                        sys.stdout.write(
+                                            f"{time_string()}Cleaning DAC\n")
+                                        sys.stdout.flush()
+                                        self.dac.clear()
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
+
+                                    elif message[4] == RESET_DAC:
+                                        sys.stdout.write(
+                                            f"{time_string()}Resetting DAC\n")
+                                        sys.stdout.flush()
+                                        self.dac.reset()
+                                        #con.send(sendVariables(variableID=0x20, value=0xe0, size=1).encode('latin-1'))
 
                             else:
                                 sys.stdout.write(time_string() + "Unknown message: {}\n".format(message))
