@@ -49,10 +49,11 @@ class DAC():
         self.send_bytes(data)
 
     def writeVolts(self, voltage, all_ch = True, ch =0):
-        D = int((2**12)*voltage / self.voltageREF)
-
+       
         if voltage > self.voltageREF:
             voltage = self.voltageREF
+
+         D = int((2**12)*voltage / self.voltageREF)
 
         data = ['10000010', f'{int(D//16):08b}', f'{int(D%16) << 4:08b}']
 
