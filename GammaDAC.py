@@ -68,7 +68,7 @@ class DAC():
     def reset(self):
         self.send_bytes(['01010001'])
 
-    def read_dac(self, readAll = True,  ch = 0):
+    def read_dac(self, readAll = False,  ch = 0):
         if readAll:
             value_return = []
             data = [f'10000001']
