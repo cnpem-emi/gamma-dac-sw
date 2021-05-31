@@ -74,7 +74,7 @@ class DAC():
             data = [f'10000001']
             self.send_bytes(data=data)
             for i in range(4):
-                value_return.append(self.send_bytes(readBack=True))
+                value_return.append(self.send_bytes(readBack=True)[1])
             return(value_return)
 
         else:
