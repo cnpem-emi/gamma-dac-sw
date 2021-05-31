@@ -48,7 +48,7 @@ class DAC():
 
         self.send_bytes(data)
 
-    def writeVolts(self, voltage, all_ch = True, ch =0):
+    def writeVolts(self, voltage, all_ch = False, ch =0):
        
         if voltage > self.voltageREF:
             voltage = self.voltageREF
