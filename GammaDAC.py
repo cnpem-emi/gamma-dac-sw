@@ -82,7 +82,7 @@ class DAC():
             self.send_bytes(data=data)
             return (self.send_bytes(readBack=True))
 
-    def read_code(self, readAll = True, ch = 0):
+    def read_code(self, readAll = False, ch = 0):
         if readAll:
             value_return = []
             data = [f'10000000']
