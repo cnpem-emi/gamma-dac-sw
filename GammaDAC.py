@@ -27,6 +27,9 @@ class DAC():
             self.i2c.readfrom_into(self.I2C_addr, result)
             register_Value = int(result.hex()[:-1], 16)
 
+            if self.voltageREF == 0:
+                self.voltageREF = self.read_Ref()
+
             return ([register_Value, (register_Value * self.voltageREF) / 4096])
 
     def power(self, mode, DACs):
@@ -49,11 +52,14 @@ class DAC():
         self.send_bytes(data)
 
     def writeVolts(self, voltage, all_ch = False, ch =0):
-       
+
+        if self.voltageREF == 0:
+            self.voltageREF = self.read_Ref()
+
         if voltage > self.voltageREF:
             voltage = self.voltageREF
 
-         D = int((2**12)*voltage / self.voltageREF)
+        D = int((2**12)*voltage / self.voltageREF)
 
         data = ['10000010', f'{int(D//16):08b}', f'{int(D%16) << 4:08b}']
 
@@ -71,7 +77,7 @@ class DAC():
     def read_dac(self, readAll = False,  ch = 0):
         if readAll:
             value_return = []
-            data = [f'10000001']
+            data = [f'10000000']
             self.send_bytes(data=data)
             for i in range(4):
                 value_return.append(self.send_bytes(readBack=True)[1])
@@ -103,3 +109,11 @@ class DAC():
         result = bytearray(2)
         self.i2c.readfrom_into(self.I2C_addr, result)
         return(int(result.hex(), 16))
+
+    def read_Ref(self):
+        data = [f'11111111']
+        self.send_bytes(data=data)
+
+        result = bytearray(2)
+        self.i2c.readfrom_into(self.I2C_addr, result)
+        return(self.modeRef[f'{int(result.hex(), 16):016b}'[-2:]])
