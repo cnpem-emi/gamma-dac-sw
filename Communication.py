@@ -22,6 +22,7 @@ READ_CODE_CH        = 0x32
 READ_DAC_ALL        = 0x31
 READ_CODE_ALL       = 0x32
 READ_POWER          = 0x33
+READ_REFERENCE      = 0X34
 #---------------------------------
 
 # Datetime string
@@ -93,27 +94,37 @@ class Communication(Thread):
                             if (verify_CheckSum(message)):
                                 # Reads Variable
                                 if message[1] == 0x10:
-                                    value = self.dac.read_dac(False, message[5])
                                     if message[4] == READ_DAC_CH:
+                                        value = self.dac.read_dac(ch = message[5])
                                         sys.stdout.write(
                                             f"{time_string()}DAC read\nChannel: {message[5]}\nValue: {value}\n")
                                         sys.stdout.flush()
                                         con.send(
-                                            sendVariables(variableID=0x11, value=value[0]<<4, size=8).encode(
+                                            sendVariables(variableID=0x11, value=int(value[1]*1000), size=8).encode(
                                                 'latin-1'))
 
                                     elif message[4] == READ_CODE_CH:
-                                        value = self.dac.read_dac(False, message[5])
+                                        value = self.dac.read_code(ch = message[5])
                                         sys.stdout.write(
                                             f"{time_string()}CODE read\nChannel: {message[5]}\nValue: {value}\n")
                                         sys.stdout.flush()
                                         con.send(
-                                            sendVariables(variableID=0x11, value=value[0]<<4, size=8).encode(
+                                            sendVariables(variableID=0x11, value=value<<4, size=8).encode(
                                                 'latin-1'))
                                     elif message[4] == READ_POWER:
                                         con.send(
                                             sendVariables(variableID=0x11, value=self.dac.read_power(), size=1).encode(
                                                 'latin-1'))
+
+                                    elif message[4] == READ_REFERENCE:
+                                        value = self.dac.read_Ref()
+                                        sys.stdout.write(
+                                            f"{time_string()}REFERENCE read \nValue: {value}\n")
+                                        sys.stdout.flush()
+                                        con.send(
+                                            sendVariables(variableID=0x11, value=int(value*1000), size=4).encode(
+                                                'latin-1'))
+
                                 # Reads Group
                                 #@TODO
                                 elif message[1] == 0x12:

@@ -30,7 +30,7 @@ class DAC():
             if self.voltageREF == 0:
                 self.voltageREF = self.read_Ref()
 
-            return ([register_Value, (register_Value * self.voltageREF) / 4096])
+            return([register_Value, (register_Value * self.voltageREF) / 4096])
 
     def power(self, mode, DACs):
         self.send_bytes([f'010000{mode:02b}', f'0000{DACs:04b}', '00000000'])
@@ -77,7 +77,7 @@ class DAC():
     def read_dac(self, readAll = False,  ch = 0):
         if readAll:
             value_return = []
-            data = ['10000000']
+            data = ['10000001']
             self.send_bytes(data=data)
             for i in range(4):
                 value_return.append(self.send_bytes(readBack=True)[1])
@@ -86,7 +86,7 @@ class DAC():
         else:
             data = [f'0011{ch:04b}']
             self.send_bytes(data=data)
-            return (self.send_bytes(readBack=True))
+            return(self.send_bytes(readBack=True))
 
     def read_code(self, readAll = False, ch = 0):
         if readAll:
@@ -95,12 +95,12 @@ class DAC():
             self.send_bytes(data=data)
             for i in range(4):
                 value_return.append(self.send_bytes(readBack=True)[0])
-            return (value_return)
+            return(value_return)
 
         else:
             data = [f'0000{ch:04b}']
             self.send_bytes(data=data)
-            return (self.send_bytes(readBack=True)[0])
+            return(self.send_bytes(readBack=True)[0])
 
     def read_power(self):
         data = ['01000000']
