@@ -19,10 +19,10 @@ RESET_DAC           = 0x22
 
 READ_DAC_CH         = 0x31
 READ_CODE_CH        = 0x32
-READ_DAC_ALL        = 0x31
-READ_CODE_ALL       = 0x32
-READ_POWER          = 0x33
-READ_REFERENCE      = 0X34
+READ_DAC_ALL        = 0x33
+READ_CODE_ALL       = 0x34
+READ_POWER          = 0x35
+READ_REFERENCE      = 0X36
 #---------------------------------
 
 # Datetime string
