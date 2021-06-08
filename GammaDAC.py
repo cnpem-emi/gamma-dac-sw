@@ -4,7 +4,7 @@ class DAC():
 
     def __init__(self, gammaAddr = 15):
         self.W_addr = int(f'0b001{gammaAddr:04b}0', 2)
-        self.R_addr = int(f'0b001{gammaAddr:04b}1',2)
+        self.R_addr = int(f'0b001{gammaAddr:04b}1', 2)
 
         self.i2c = busio.I2C(board.SCL, board.SDA, 200000)
 
@@ -77,7 +77,7 @@ class DAC():
     def read_dac(self, readAll = False,  ch = 0):
         if readAll:
             value_return = []
-            data = [f'10000000']
+            data = ['10000000']
             self.send_bytes(data=data)
             for i in range(4):
                 value_return.append(self.send_bytes(readBack=True)[1])
@@ -91,7 +91,7 @@ class DAC():
     def read_code(self, readAll = False, ch = 0):
         if readAll:
             value_return = []
-            data = [f'10000000']
+            data = ['10000000']
             self.send_bytes(data=data)
             for i in range(4):
                 value_return.append(self.send_bytes(readBack=True)[0])
@@ -103,7 +103,7 @@ class DAC():
             return (self.send_bytes(readBack=True)[0])
 
     def read_power(self):
-        data = [f'01000000']
+        data = ['01000000']
         self.send_bytes(data=data)
 
         result = bytearray(2)
@@ -111,7 +111,7 @@ class DAC():
         return(int(result.hex(), 16))
 
     def read_Ref(self):
-        data = [f'11111111']
+        data = ['11111111']
         self.send_bytes(data=data)
 
         result = bytearray(2)
