@@ -1,2 +1,2 @@
-setuptools-scm
-Adafruit-Blinka
+setuptools-scm == 5.0.2
+Adafruit-Blinka == 6.10.1 
