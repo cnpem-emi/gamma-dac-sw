@@ -169,7 +169,7 @@ class DAC():
         - ch: Reads a specific channel.
                 Range: 0 to 3.
     
-    Return: The function returns a list with two data, the value of dac register (0x00 to 0xf0) and this value converted to volts.
+    Return: The function returns a list with two data, the value of dac register ([0x00, 0x00] to [0cff,0xf0]) and this value converted to volts.
     """
 
     def read_dac(self, readAll = False,  ch = 0):
@@ -196,7 +196,7 @@ class DAC():
         - ch: Reads a specific channel.
                 Range: 0 to 3.
 
-    Return: The function returns the value of code register (0x00 to 0xf0).
+    Return: The function returns the value of code register ([0x00, 0x00] to [0xff, 0xf0]).
     """
 
     def read_code(self, readAll = False, ch = 0):
