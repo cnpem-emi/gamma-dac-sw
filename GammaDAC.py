@@ -95,8 +95,8 @@ class DAC():
     Sets the value of DACs.
 
     This function receives three parameters:
-        - Value: Two bytes of data, using just three most significant nibbles.
-                Range: 0x00 to 0xf0.
+        - Value: List of two data bytes, using just three most significant nibbles.
+                Range: [0x00, 0x00] to [0xff, 0xf0].
                 
         - all_ch: Sets the value to all outputs.
         
