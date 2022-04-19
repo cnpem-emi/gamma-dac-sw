@@ -1,0 +1,14 @@
+[Unit]
+Description=Gamma DAC control
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+RestartSec=5
+Type=simple
+WorkingDirectory=/root/gammaDAC
+ExecStart=/usr/bin/python-sirius /root/gammaDAC/main.py
+
+[Install]
+WantedBy=multi-user.target
