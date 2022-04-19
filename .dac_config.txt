@@ -1,1 +1,1 @@
-{'Referencia': '2.5V', 'Power_Mode': 0, 'DAC_Config': [1, 1, 15], 'Voltages': [0, 1.1, 0, 0]}
+{'Referencia': '2.5V', 'Power_Mode': 0, 'DAC_Config': [1, 1, 15], 'Voltages': [3.3, 1.3, 3, 2.2]}

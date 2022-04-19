@@ -8,7 +8,7 @@ Restart=on-failure
 RestartSec=5
 Type=simple
 WorkingDirectory=/root/gammaDAC
-ExecStart=/usr/bin/python-sirius /root/gammaDAC/main.py
+ExecStart=/usr/bin/python-sirius /root/gammaDAC/gen_pv.py
 
 [Install]
 WantedBy=multi-user.target
