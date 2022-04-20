@@ -1,9 +1,9 @@
 #!/usr/bin/env python-sirius
 import os, sys, ast
 from pick import pick
-#from GammaDAC import DAC
+from GammaDAC import DAC
 
-#dac = DAC()
+dac = DAC()
 
 def write_file( key, value, ch=''):
     written = read_file()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         if index_escrever < 4:
             os.system('clear')
             volts = input("\nSelecione tensão para o canal {}: ".format(index_escrever))
-            # dac.writeVolts(float(volts), ch = index_escrever)
+            dac.writeVolts(float(volts), ch = index_escrever)
             write_file('Voltages', volts, index_escrever)
 
         elif index_escrever == 4:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                                                                default_index=1)
 
             if options_referencia != 0:
-                # dac.ref(0, index_referencia)
+                dac.ref(0, index_referencia)
                 write_file("Referencia", option_referencia)
 
         else:
