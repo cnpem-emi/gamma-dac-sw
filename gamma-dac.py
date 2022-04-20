@@ -1,6 +1,6 @@
 import board, busio
 
-class DAC():
+class DAC:
 
     def __init__(self, gammaAddr = 15):
         self.W_addr = int(f'0b001{gammaAddr:04b}0', 2)
