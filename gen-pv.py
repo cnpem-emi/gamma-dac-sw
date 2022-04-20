@@ -5,7 +5,7 @@ from pcaspy  import Driver, SimpleServer
 PVs = {}
 
 for ch in range(4):
-    PVs[f"GammaDAC:Channel{ch}"] = {'type':'float','unit':'Pulse/s', 'prec': 5}
+    PVs[f"GammaDAC:Channel{ch}"] = {'type':'float','unit':'Volts', 'prec': 5}
 
 # ---------------------------------------
 # EPICS driver
