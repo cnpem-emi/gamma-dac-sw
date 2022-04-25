@@ -25,16 +25,17 @@ class main(threading.Thread):
 
     def __int__(self):
         threading.Thread.__init__(self)
-
         self.dac = DAC()
-        self.dac.power(configs['Power_Mode'])
-        self.dac.config(configs['DAC_Config'])
-        self.dac.ref(configs['Referencia'])
+        
+        self.read_file()
+        self.references_value = {" ":0, "2.5V":1, "2.048V":2, "4.1V":3}
 
-        for channel, voltage in enumerate(configs['Voltages']):
+        self.dac.power(self.written['Power_Mode'], 0x0f)
+        self.dac.config(self.written['DAC_Config'][0], self.written['DAC_Config'][1], self.written['DAC_Config'][2])
+        self.dac.ref(0, self.references_value[self.written['Referencia']])
+
+        for channel, voltage in enumerate(self.written['Voltages']):
             self.dac.writeVolts(voltage, ch = channel)
-
-        self.written = ''
 
     def run(self):
         while(True):
