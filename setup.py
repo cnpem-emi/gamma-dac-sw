@@ -17,7 +17,7 @@ def write_file( key, value, ch=''):
 
 
 def read_file():
-    with open("./.dac_config.txt", "r") as doc:
+    with open("./.dac-config.txt", "r") as doc:
         written = ast.literal_eval(str(doc.read()))
         doc.close()
     return (written)
