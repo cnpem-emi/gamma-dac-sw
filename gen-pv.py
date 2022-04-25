@@ -23,7 +23,7 @@ class PSDriver(Driver):
 
 class main(threading.Thread):
 
-    def __int__(self):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.dac = DAC()
         
