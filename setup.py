@@ -4,6 +4,12 @@ from pick import pick
 from gammadac import DAC
 
 dac = DAC()
+references_value = {" ":0, "2.5V":1, "2.048V":2, "4.1V":3}
+
+initial_configs = read_file()
+dac.power(initial_configs['Power_Mode'], 0x0f)
+dac.config(initial_configs['DAC_Config'][0], initial_configs['DAC_Config'][1], initial_configs['DAC_Config'][2])
+dac.ref(0, references_value[initial_configs['Referencia']])
 
 def write_file( key, value, ch=''):
     written = read_file()
