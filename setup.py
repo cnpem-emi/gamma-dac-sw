@@ -7,7 +7,7 @@ dac = DAC()
 
 def write_file( key, value, ch=''):
     written = read_file()
-    with open("./.dac_config.txt", "w") as doc:
+    with open("./.dac-config.txt", "w") as doc:
         if ch == '':
             written[key] = value
         else:
