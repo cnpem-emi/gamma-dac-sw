@@ -46,7 +46,7 @@ class main(threading.Thread):
             time.sleep(60)
 
     def read_file(self):
-        with open("./.dac_config.txt", "r") as doc:
+        with open("./.dac-config.txt", "r") as doc:
             self.written = ast.literal_eval(str(doc.read()))
             doc.close()
 
