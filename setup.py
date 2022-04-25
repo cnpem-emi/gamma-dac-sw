@@ -1,7 +1,7 @@
 #!/usr/bin/env python-sirius
 import os, sys, ast
 from pick import pick
-from GammaDAC import DAC
+from gammadac import DAC
 
 dac = DAC()
 
