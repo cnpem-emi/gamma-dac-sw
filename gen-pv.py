@@ -1,5 +1,5 @@
 import threading, time, ast
-from GammaDAC import DAC
+from gammadac import DAC
 from pcaspy  import Driver, SimpleServer
 
 PVs = {}
