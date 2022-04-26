@@ -44,7 +44,7 @@ class main(threading.Thread):
             for ch in range(4):
                 driver.write(f"GammaDAC:Channel{ch}", self.written['Voltages'][ch])
 
-            time.sleep(60)
+            time.sleep(30)
 
     def read_file(self):
         with open("./.dac-config.txt", "r") as doc:
