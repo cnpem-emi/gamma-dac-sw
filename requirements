@@ -1,4 +1,4 @@
-pick == 1.2.0
-setuptools-scm == 5.0.2
-Adafruit-Blinka == 6.10.1 
+pick==1.2.0
+setuptools-scm==5.0.2
+Adafruit-Blinka==6.10.1 
 Adafruit-PlatformDetect==3.14.1
